@@ -2,9 +2,7 @@
 # Run from repo root: .\scripts\deploy.ps1
 
 $ErrorActionPreference = "Stop"
-$RepoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
-if (Test-Path "$PSScriptRoot\..\go.mod") { $RepoRoot = Resolve-Path "$PSScriptRoot\.." }
-Set-Location $RepoRoot
+Set-Location (Resolve-Path (Join-Path $PSScriptRoot ".."))
 
 Write-Host "==> Checking GitHub CLI..." -ForegroundColor Cyan
 gh auth status 2>$null
