@@ -13,21 +13,26 @@ if ($LASTEXITCODE -ne 0) {
 
 $repoName = "driving-authority-backend"
 $ghUser = (gh api user -q .login)
+$originUrl = "https://github.com/$ghUser/$repoName.git"
 
 Write-Host "==> Creating GitHub repo $ghUser/$repoName (if needed)..." -ForegroundColor Cyan
-$exists = gh repo view "$ghUser/$repoName" 2>$null
+gh repo view "$ghUser/$repoName" 2>$null | Out-Null
 if ($LASTEXITCODE -ne 0) {
     gh repo create $repoName --public --source=. --remote=origin --push
 } else {
-    git remote remove origin 2>$null
-    git remote add origin "https://github.com/$ghUser/$repoName.git"
+    $remotes = @(git remote)
+    if ($remotes -contains "origin") {
+        git remote set-url origin $originUrl
+    } else {
+        git remote add origin $originUrl
+    }
     git push -u origin main
 }
 
 Write-Host "==> GitHub: https://github.com/$ghUser/$repoName" -ForegroundColor Green
 
 Write-Host "`n==> Railway deploy..." -ForegroundColor Cyan
-railway whoami 2>$null
+railway whoami 2>$null | Out-Null
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Log in to Railway:" -ForegroundColor Yellow
     railway login
