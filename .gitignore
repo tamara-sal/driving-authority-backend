@@ -1,7 +1,7 @@
 .env
 *.exe
-api
-api.exe
+/api
+/api.exe
 bin/
 dist/
 .idea/
