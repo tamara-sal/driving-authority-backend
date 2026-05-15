@@ -1,0 +1,10 @@
+.env
+*.exe
+api
+api.exe
+bin/
+dist/
+.idea/
+.vscode/
+*.log
+mongo_data/

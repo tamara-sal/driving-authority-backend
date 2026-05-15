@@ -1,0 +1,439 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Driving Authority API",
+    "description": "REST API for auth, JWT, RBAC, and identity verification.",
+    "version": "1.0",
+    "contact": {
+      "name": "API Support",
+      "email": "support@example.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/api/v1",
+  "schemes": ["http"],
+  "securityDefinitions": {
+    "BearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "Enter: Bearer {your JWT access token}"
+    }
+  },
+  "tags": [
+    { "name": "system", "description": "Health and status" },
+    { "name": "auth", "description": "Registration, login, and profile" },
+    { "name": "identity", "description": "Citizen identity verification" },
+    { "name": "admin", "description": "Admin-only operations" }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["system"],
+        "summary": "Health check",
+        "description": "Returns OK when the API is running.",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/http.HealthResponse" }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Register a new citizen account",
+        "description": "Creates a citizen user and returns a JWT access token.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": { "$ref": "#/definitions/auth.RegisterInput" }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": { "$ref": "#/definitions/auth.AuthOutput" }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Login",
+        "description": "Authenticates a user and returns a JWT access token.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": { "$ref": "#/definitions/auth.LoginInput" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/auth.AuthOutput" }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/auth/bootstrap-admin": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Bootstrap first admin account",
+        "description": "Creates an admin user when BOOTSTRAP_ADMIN_SECRET is configured and the request secret matches.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": { "$ref": "#/definitions/auth.BootstrapAdminInput" }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": { "$ref": "#/definitions/auth.AuthOutput" }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/me": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "Current user profile",
+        "description": "Returns the authenticated user's id, email, and role.",
+        "produces": ["application/json"],
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/http.MeResponse" }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/admin/ping": {
+      "get": {
+        "tags": ["admin"],
+        "summary": "Admin RBAC smoke test",
+        "description": "Returns admin:true when the caller has the admin role.",
+        "produces": ["application/json"],
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/http.AdminPingResponse" }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/identity/submit": {
+      "post": {
+        "tags": ["identity"],
+        "summary": "Submit identity verification",
+        "description": "Citizen submits national ID and document paths. Re-submit resets status to pending.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": { "$ref": "#/definitions/identity.SubmitInput" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/identity.IdentityVerification" }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/identity/status": {
+      "get": {
+        "tags": ["identity"],
+        "summary": "Get my identity verification status",
+        "description": "Returns the citizen's verification record, or user_id with empty status if never submitted.",
+        "produces": ["application/json"],
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/identity.IdentityVerification" }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/admin/identity/{id}/approve": {
+      "put": {
+        "tags": ["admin"],
+        "summary": "Approve identity verification",
+        "description": "Admin approves a verification by ID.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Verification MongoDB ObjectID (hex)",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "schema": { "$ref": "#/definitions/identity.DecisionInput" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/identity.IdentityVerification" }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          }
+        }
+      }
+    },
+    "/admin/identity/{id}/reject": {
+      "put": {
+        "tags": ["admin"],
+        "summary": "Reject identity verification",
+        "description": "Admin rejects a verification by ID.",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Verification MongoDB ObjectID (hex)",
+            "name": "id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "schema": { "$ref": "#/definitions/identity.DecisionInput" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": { "$ref": "#/definitions/identity.IdentityVerification" }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "http.ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error": { "type": "string", "example": "invalid credentials" }
+      }
+    },
+    "http.HealthResponse": {
+      "type": "object",
+      "properties": {
+        "ok": { "type": "boolean", "example": true }
+      }
+    },
+    "http.MeResponse": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "example": "507f1f77bcf86cd799439011" },
+        "email": { "type": "string", "example": "user@example.com" },
+        "role": {
+          "type": "string",
+          "enum": ["citizen", "admin", "examiner", "officer"],
+          "example": "citizen"
+        }
+      }
+    },
+    "http.AdminPingResponse": {
+      "type": "object",
+      "properties": {
+        "admin": { "type": "boolean", "example": true }
+      }
+    },
+    "auth.RegisterInput": {
+      "type": "object",
+      "required": ["first_name", "last_name", "email", "password"],
+      "properties": {
+        "first_name": { "type": "string", "example": "Jane" },
+        "last_name": { "type": "string", "example": "Doe" },
+        "email": { "type": "string", "format": "email", "example": "jane@example.com" },
+        "password": { "type": "string", "minLength": 8, "example": "password123" },
+        "phone": { "type": "string", "example": "+1234567890" }
+      }
+    },
+    "auth.LoginInput": {
+      "type": "object",
+      "required": ["email", "password"],
+      "properties": {
+        "email": { "type": "string", "format": "email", "example": "jane@example.com" },
+        "password": { "type": "string", "example": "password123" }
+      }
+    },
+    "auth.BootstrapAdminInput": {
+      "type": "object",
+      "required": ["secret", "first_name", "last_name", "email", "password"],
+      "properties": {
+        "secret": { "type": "string", "example": "your-bootstrap-secret" },
+        "first_name": { "type": "string", "example": "Admin" },
+        "last_name": { "type": "string", "example": "User" },
+        "email": { "type": "string", "format": "email", "example": "admin@example.com" },
+        "password": { "type": "string", "minLength": 8, "example": "password123" },
+        "phone": { "type": "string", "example": "+1234567890" }
+      }
+    },
+    "auth.AuthOutput": {
+      "type": "object",
+      "properties": {
+        "access_token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." },
+        "user_id": { "type": "string", "example": "507f1f77bcf86cd799439011" },
+        "email": { "type": "string", "example": "jane@example.com" },
+        "role": {
+          "type": "string",
+          "enum": ["citizen", "admin", "examiner", "officer"],
+          "example": "citizen"
+        }
+      }
+    },
+    "identity.SubmitInput": {
+      "type": "object",
+      "required": ["national_id_number", "document_front_path", "document_back_path", "selfie_path"],
+      "properties": {
+        "national_id_number": { "type": "string", "example": "123456789" },
+        "document_front_path": { "type": "string", "example": "/uploads/id-front.jpg" },
+        "document_back_path": { "type": "string", "example": "/uploads/id-back.jpg" },
+        "selfie_path": { "type": "string", "example": "/uploads/selfie.jpg" }
+      }
+    },
+    "identity.DecisionInput": {
+      "type": "object",
+      "properties": {
+        "comment": { "type": "string", "example": "Documents verified" }
+      }
+    },
+    "identity.IdentityVerification": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "example": "507f1f77bcf86cd799439012" },
+        "user_id": { "type": "string", "example": "507f1f77bcf86cd799439011" },
+        "national_id_number": { "type": "string", "example": "123456789" },
+        "document_front_path": { "type": "string", "example": "/uploads/id-front.jpg" },
+        "document_back_path": { "type": "string", "example": "/uploads/id-back.jpg" },
+        "selfie_path": { "type": "string", "example": "/uploads/selfie.jpg" },
+        "status": {
+          "type": "string",
+          "enum": ["", "pending", "approved", "rejected"],
+          "example": "pending"
+        },
+        "reviewed_by": { "type": "string", "example": "507f1f77bcf86cd799439013" },
+        "review_comment": { "type": "string", "example": "Approved" },
+        "submitted_at": { "type": "string", "format": "date-time" },
+        "reviewed_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}
