@@ -2,325 +2,1963 @@
   "swagger": "2.0",
   "info": {
     "title": "Driving Authority API",
-    "description": "Government-grade Driving Authority API: auth, identity, licenses, exams, practical tests, vehicles, inspections, monitoring, payments, analytics. See scripts/generate-swagger-paths.md for full route list.",
+    "description": "Full REST API: auth, identity, licenses, theory exams, practical tests, vehicles, inspections, monitoring, payments, analytics.",
     "version": "1.0",
     "contact": {
       "name": "API Support",
       "email": "support@example.com"
-    },
-    "license": {
-      "name": "MIT",
-      "url": "https://opensource.org/licenses/MIT"
     }
   },
   "host": "api-production-5e10.up.railway.app",
   "basePath": "/api/v1",
-  "schemes": ["https", "http"],
+  "schemes": [
+    "https",
+    "http"
+  ],
   "securityDefinitions": {
     "BearerAuth": {
       "type": "apiKey",
       "name": "Authorization",
       "in": "header",
-      "description": "Enter: Bearer {your JWT access token}"
+      "description": "Bearer {JWT access_token}"
     }
   },
   "tags": [
-    { "name": "system", "description": "Health and status" },
-    { "name": "auth", "description": "Registration, login, and profile" },
-    { "name": "identity", "description": "Citizen identity verification" },
-    { "name": "admin", "description": "Admin-only operations" }
+    {
+      "name": "system"
+    },
+    {
+      "name": "auth"
+    },
+    {
+      "name": "identity"
+    },
+    {
+      "name": "licenses"
+    },
+    {
+      "name": "exams"
+    },
+    {
+      "name": "practical"
+    },
+    {
+      "name": "vehicles"
+    },
+    {
+      "name": "inspections"
+    },
+    {
+      "name": "monitoring"
+    },
+    {
+      "name": "payments"
+    },
+    {
+      "name": "analytics"
+    },
+    {
+      "name": "admin"
+    }
   ],
   "paths": {
     "/health": {
       "get": {
-        "tags": ["system"],
+        "tags": [
+          "system"
+        ],
         "summary": "Health check",
-        "description": "Returns OK when the API is running.",
-        "produces": ["application/json"],
         "responses": {
           "200": {
             "description": "OK",
-            "schema": { "$ref": "#/definitions/http.HealthResponse" }
+            "schema": {
+              "$ref": "#/definitions/http.HealthResponse"
+            }
           }
-        }
+        },
+        "produces": [
+          "application/json"
+        ]
       }
     },
     "/auth/register": {
       "post": {
-        "tags": ["auth"],
-        "summary": "Register a new citizen account",
-        "description": "Creates a citizen user and returns a JWT access token.",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "tags": [
+          "auth"
+        ],
+        "summary": "register",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/auth.AuthOutput"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "in": "body",
             "name": "body",
             "required": true,
-            "schema": { "$ref": "#/definitions/auth.RegisterInput" }
+            "schema": {
+              "$ref": "#/definitions/auth.RegisterInput"
+            }
           }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created",
-            "schema": { "$ref": "#/definitions/auth.AuthOutput" }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
-          }
-        }
+        ]
       }
     },
     "/auth/login": {
       "post": {
-        "tags": ["auth"],
-        "summary": "Login",
-        "description": "Authenticates a user and returns a JWT access token.",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "tags": [
+          "auth"
+        ],
+        "summary": "login",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/auth.AuthOutput"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "in": "body",
             "name": "body",
             "required": true,
-            "schema": { "$ref": "#/definitions/auth.LoginInput" }
+            "schema": {
+              "$ref": "#/definitions/auth.LoginInput"
+            }
           }
+        ]
+      }
+    },
+    "/auth/verify-email": {
+      "post": {
+        "tags": [
+          "auth"
         ],
+        "summary": "verify-email",
         "responses": {
           "200": {
-            "description": "OK",
-            "schema": { "$ref": "#/definitions/auth.AuthOutput" }
+            "description": "OK"
           },
           "400": {
             "description": "Bad Request",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
           },
           "401": {
             "description": "Unauthorized",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
           }
-        }
+        },
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/auth.VerifyEmailInput"
+            }
+          }
+        ]
+      }
+    },
+    "/auth/forgot-password": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "forgot-password",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/auth.ForgotPasswordOutput"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/auth.ForgotPasswordInput"
+            }
+          }
+        ]
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "reset-password",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/auth.ResetPasswordInput"
+            }
+          }
+        ]
       }
     },
     "/auth/bootstrap-admin": {
       "post": {
-        "tags": ["auth"],
-        "summary": "Bootstrap first admin account",
-        "description": "Creates an admin user when BOOTSTRAP_ADMIN_SECRET is configured and the request secret matches.",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "tags": [
+          "auth"
+        ],
+        "summary": "bootstrap-admin",
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/auth.AuthOutput"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "in": "body",
             "name": "body",
             "required": true,
-            "schema": { "$ref": "#/definitions/auth.BootstrapAdminInput" }
+            "schema": {
+              "$ref": "#/definitions/auth.BootstrapAdminInput"
+            }
           }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created",
-            "schema": { "$ref": "#/definitions/auth.AuthOutput" }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
-          },
-          "403": {
-            "description": "Forbidden",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
-          }
-        }
+        ]
       }
     },
     "/me": {
       "get": {
-        "tags": ["auth"],
-        "summary": "Current user profile",
-        "description": "Returns the authenticated user's id, email, and role.",
-        "produces": ["application/json"],
-        "security": [{ "BearerAuth": [] }],
+        "tags": [
+          "auth"
+        ],
+        "summary": "Current user",
         "responses": {
           "200": {
             "description": "OK",
-            "schema": { "$ref": "#/definitions/http.MeResponse" }
+            "schema": {
+              "$ref": "#/definitions/http.MeResponse"
+            }
           },
           "401": {
             "description": "Unauthorized",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ]
       }
     },
     "/admin/ping": {
       "get": {
-        "tags": ["admin"],
-        "summary": "Admin RBAC smoke test",
-        "description": "Returns admin:true when the caller has the admin role.",
-        "produces": ["application/json"],
-        "security": [{ "BearerAuth": [] }],
+        "tags": [
+          "admin"
+        ],
+        "summary": "Admin ping",
         "responses": {
           "200": {
             "description": "OK",
-            "schema": { "$ref": "#/definitions/http.AdminPingResponse" }
+            "schema": {
+              "$ref": "#/definitions/http.AdminPingResponse"
+            }
           },
           "401": {
             "description": "Unauthorized",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
           },
           "403": {
             "description": "Forbidden",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ]
       }
     },
     "/identity/submit": {
       "post": {
-        "tags": ["identity"],
-        "summary": "Submit identity verification",
-        "description": "Citizen submits national ID and document paths. Re-submit resets status to pending.",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "security": [{ "BearerAuth": [] }],
+        "tags": [
+          "identity"
+        ],
+        "summary": "Submit identity",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/identity.IdentityVerification"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
             "in": "body",
             "name": "body",
             "required": true,
-            "schema": { "$ref": "#/definitions/identity.SubmitInput" }
+            "schema": {
+              "$ref": "#/definitions/identity.SubmitInput"
+            }
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": { "$ref": "#/definitions/identity.IdentityVerification" }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
-          },
-          "403": {
-            "description": "Forbidden",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
-          }
-        }
+        ]
       }
     },
     "/identity/status": {
       "get": {
-        "tags": ["identity"],
-        "summary": "Get my identity verification status",
-        "description": "Returns the citizen's verification record, or user_id with empty status if never submitted.",
-        "produces": ["application/json"],
-        "security": [{ "BearerAuth": [] }],
+        "tags": [
+          "identity"
+        ],
+        "summary": "My identity status",
         "responses": {
           "200": {
             "description": "OK",
-            "schema": { "$ref": "#/definitions/identity.IdentityVerification" }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/identity.IdentityVerification"
+            }
           },
           "401": {
             "description": "Unauthorized",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
           },
           "403": {
             "description": "Forbidden",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ]
       }
     },
     "/admin/identity/{id}/approve": {
       "put": {
-        "tags": ["admin"],
-        "summary": "Approve identity verification",
-        "description": "Admin approves a verification by ID.",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "security": [{ "BearerAuth": [] }],
+        "tags": [
+          "admin",
+          "identity"
+        ],
+        "summary": "Identity approve",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/identity.IdentityVerification"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
-            "type": "string",
-            "description": "Verification MongoDB ObjectID (hex)",
             "name": "id",
             "in": "path",
-            "required": true
+            "required": true,
+            "type": "string",
+            "description": "MongoDB ObjectID (hex)"
           },
           {
             "in": "body",
             "name": "body",
-            "schema": { "$ref": "#/definitions/identity.DecisionInput" }
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/identity.DecisionInput"
+            }
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": { "$ref": "#/definitions/identity.IdentityVerification" }
-          },
-          "400": {
-            "description": "Bad Request",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
-          },
-          "403": {
-            "description": "Forbidden",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
-          }
-        }
+        ]
       }
     },
     "/admin/identity/{id}/reject": {
       "put": {
-        "tags": ["admin"],
-        "summary": "Reject identity verification",
-        "description": "Admin rejects a verification by ID.",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
-        "security": [{ "BearerAuth": [] }],
+        "tags": [
+          "admin",
+          "identity"
+        ],
+        "summary": "Identity reject",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/identity.IdentityVerification"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
         "parameters": [
           {
-            "type": "string",
-            "description": "Verification MongoDB ObjectID (hex)",
             "name": "id",
             "in": "path",
-            "required": true
+            "required": true,
+            "type": "string",
+            "description": "MongoDB ObjectID (hex)"
           },
           {
             "in": "body",
             "name": "body",
-            "schema": { "$ref": "#/definitions/identity.DecisionInput" }
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/identity.DecisionInput"
+            }
           }
+        ]
+      }
+    },
+    "/licenses": {
+      "post": {
+        "tags": [
+          "licenses"
         ],
+        "summary": "Apply for license",
         "responses": {
-          "200": {
-            "description": "OK",
-            "schema": { "$ref": "#/definitions/identity.IdentityVerification" }
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/licenses.License"
+            }
           },
           "400": {
             "description": "Bad Request",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
           },
           "401": {
             "description": "Unauthorized",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
           },
           "403": {
             "description": "Forbidden",
-            "schema": { "$ref": "#/definitions/http.ErrorResponse" }
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
           }
-        }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/licenses.CreateInput"
+            }
+          }
+        ]
+      }
+    },
+    "/licenses/me": {
+      "get": {
+        "tags": [
+          "licenses"
+        ],
+        "summary": "My licenses",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/licenses.License"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ]
+      }
+    },
+    "/licenses/{id}/renew": {
+      "put": {
+        "tags": [
+          "licenses"
+        ],
+        "summary": "Renew license",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/licenses.License"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "MongoDB ObjectID (hex)"
+          }
+        ]
+      }
+    },
+    "/admin/licenses/{id}/approve": {
+      "put": {
+        "tags": [
+          "admin",
+          "licenses"
+        ],
+        "summary": "Approve license",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/licenses.License"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "MongoDB ObjectID (hex)"
+          }
+        ]
+      }
+    },
+    "/exam/questions": {
+      "get": {
+        "tags": [
+          "exams",
+          "admin"
+        ],
+        "summary": "List questions (admin)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ]
+      }
+    },
+    "/exam/start": {
+      "post": {
+        "tags": [
+          "exams"
+        ],
+        "summary": "Start theory exam",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/exams.StartOutput"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/exams.StartInput"
+            }
+          }
+        ]
+      }
+    },
+    "/exam/{attemptId}/submit": {
+      "post": {
+        "tags": [
+          "exams"
+        ],
+        "summary": "Submit exam",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/exams.SubmitOutput"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "attemptId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Exam attempt ID"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/exams.SubmitInput"
+            }
+          }
+        ]
+      }
+    },
+    "/exam/history": {
+      "get": {
+        "tags": [
+          "exams"
+        ],
+        "summary": "Exam history",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ]
+      }
+    },
+    "/centers": {
+      "get": {
+        "tags": [
+          "practical"
+        ],
+        "summary": "List test centers",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ]
+      }
+    },
+    "/centers/{id}/slots": {
+      "get": {
+        "tags": [
+          "practical"
+        ],
+        "summary": "List center slots",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Center ID"
+          }
+        ]
+      }
+    },
+    "/practical/book": {
+      "post": {
+        "tags": [
+          "practical"
+        ],
+        "summary": "Book practical test",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/practical.BookInput"
+            }
+          }
+        ]
+      }
+    },
+    "/examiner/practical/{id}/result": {
+      "put": {
+        "tags": [
+          "practical"
+        ],
+        "summary": "Record practical result (examiner)",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Booking ID"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/practical.ResultInput"
+            }
+          }
+        ]
+      }
+    },
+    "/vehicles": {
+      "post": {
+        "tags": [
+          "vehicles"
+        ],
+        "summary": "Register vehicle",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/vehicles.CreateInput"
+            }
+          }
+        ]
+      }
+    },
+    "/vehicles/me": {
+      "get": {
+        "tags": [
+          "vehicles"
+        ],
+        "summary": "My vehicles",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ]
+      }
+    },
+    "/vehicles/{id}/transfer": {
+      "post": {
+        "tags": [
+          "vehicles"
+        ],
+        "summary": "Request transfer",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Vehicle ID"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/vehicles.TransferInput"
+            }
+          }
+        ]
+      }
+    },
+    "/admin/transfer/{id}/approve": {
+      "put": {
+        "tags": [
+          "admin",
+          "vehicles"
+        ],
+        "summary": "Approve transfer",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Transfer request ID"
+          }
+        ]
+      }
+    },
+    "/inspection/schedule": {
+      "post": {
+        "tags": [
+          "inspections"
+        ],
+        "summary": "Schedule inspection",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/inspections.ScheduleInput"
+            }
+          }
+        ]
+      }
+    },
+    "/inspection/{id}/upload-report": {
+      "post": {
+        "tags": [
+          "inspections"
+        ],
+        "summary": "Upload inspection report path",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Inspection ID"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/inspections.UploadReportInput"
+            }
+          }
+        ]
+      }
+    },
+    "/devices/data": {
+      "post": {
+        "tags": [
+          "monitoring"
+        ],
+        "summary": "Ingest device telemetry",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/monitoring.DeviceDataInput"
+            }
+          }
+        ]
+      }
+    },
+    "/monitoring/trips/{vehicleId}": {
+      "get": {
+        "tags": [
+          "monitoring"
+        ],
+        "summary": "Trips by vehicle",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Vehicle ID"
+          }
+        ]
+      }
+    },
+    "/monitoring/score/{userId}": {
+      "get": {
+        "tags": [
+          "monitoring"
+        ],
+        "summary": "Safety score by user",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "User ID"
+          }
+        ]
+      }
+    },
+    "/payments/initiate": {
+      "post": {
+        "tags": [
+          "payments"
+        ],
+        "summary": "Initiate payment",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/payments.Payment"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/payments.InitiateInput"
+            }
+          }
+        ]
+      }
+    },
+    "/payments/history": {
+      "get": {
+        "tags": [
+          "payments"
+        ],
+        "summary": "Payment history",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/payments.Payment"
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ]
+      }
+    },
+    "/admin/payments/{id}/mark-paid": {
+      "put": {
+        "tags": [
+          "admin",
+          "payments"
+        ],
+        "summary": "Mark payment paid",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/payments.Payment"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Payment ID"
+          }
+        ]
+      }
+    },
+    "/admin/analytics/overview": {
+      "get": {
+        "tags": [
+          "analytics",
+          "admin"
+        ],
+        "summary": "overview",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/analytics.Overview"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ]
+      }
+    },
+    "/admin/analytics/revenue": {
+      "get": {
+        "tags": [
+          "analytics",
+          "admin"
+        ],
+        "summary": "revenue",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/analytics.Revenue"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ]
+      }
+    },
+    "/admin/analytics/exams": {
+      "get": {
+        "tags": [
+          "analytics",
+          "admin"
+        ],
+        "summary": "exams",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/analytics.Exams"
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "schema": {
+              "$ref": "#/definitions/http.ErrorResponse"
+            }
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "produces": [
+          "application/json"
+        ]
       }
     }
   },
@@ -328,111 +1966,564 @@
     "http.ErrorResponse": {
       "type": "object",
       "properties": {
-        "error": { "type": "string", "example": "invalid credentials" }
+        "error": {
+          "type": "string"
+        }
       }
     },
     "http.HealthResponse": {
       "type": "object",
       "properties": {
-        "ok": { "type": "boolean", "example": true }
+        "ok": {
+          "type": "boolean"
+        }
       }
     },
     "http.MeResponse": {
       "type": "object",
       "properties": {
-        "id": { "type": "string", "example": "507f1f77bcf86cd799439011" },
-        "email": { "type": "string", "example": "user@example.com" },
+        "id": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
         "role": {
           "type": "string",
-          "enum": ["citizen", "admin", "examiner", "officer"],
-          "example": "citizen"
+          "enum": [
+            "citizen",
+            "admin",
+            "examiner",
+            "officer"
+          ]
         }
       }
     },
     "http.AdminPingResponse": {
       "type": "object",
       "properties": {
-        "admin": { "type": "boolean", "example": true }
+        "admin": {
+          "type": "boolean"
+        }
       }
     },
     "auth.RegisterInput": {
       "type": "object",
-      "required": ["first_name", "last_name", "email", "password"],
+      "required": [
+        "first_name",
+        "last_name",
+        "email",
+        "password"
+      ],
       "properties": {
-        "first_name": { "type": "string", "example": "Jane" },
-        "last_name": { "type": "string", "example": "Doe" },
-        "email": { "type": "string", "format": "email", "example": "jane@example.com" },
-        "password": { "type": "string", "minLength": 8, "example": "password123" },
-        "phone": { "type": "string", "example": "+1234567890" }
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "password": {
+          "type": "string",
+          "minLength": 8
+        },
+        "phone": {
+          "type": "string"
+        }
       }
     },
     "auth.LoginInput": {
       "type": "object",
-      "required": ["email", "password"],
+      "required": [
+        "email",
+        "password"
+      ],
       "properties": {
-        "email": { "type": "string", "format": "email", "example": "jane@example.com" },
-        "password": { "type": "string", "example": "password123" }
-      }
-    },
-    "auth.BootstrapAdminInput": {
-      "type": "object",
-      "required": ["secret", "first_name", "last_name", "email", "password"],
-      "properties": {
-        "secret": { "type": "string", "example": "your-bootstrap-secret" },
-        "first_name": { "type": "string", "example": "Admin" },
-        "last_name": { "type": "string", "example": "User" },
-        "email": { "type": "string", "format": "email", "example": "admin@example.com" },
-        "password": { "type": "string", "minLength": 8, "example": "password123" },
-        "phone": { "type": "string", "example": "+1234567890" }
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
       }
     },
     "auth.AuthOutput": {
       "type": "object",
       "properties": {
-        "access_token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." },
-        "user_id": { "type": "string", "example": "507f1f77bcf86cd799439011" },
-        "email": { "type": "string", "example": "jane@example.com" },
+        "access_token": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
         "role": {
+          "type": "string"
+        },
+        "verification_token": {
+          "type": "string"
+        }
+      }
+    },
+    "auth.VerifyEmailInput": {
+      "type": "object",
+      "required": [
+        "token"
+      ],
+      "properties": {
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "auth.ForgotPasswordInput": {
+      "type": "object",
+      "required": [
+        "email"
+      ],
+      "properties": {
+        "email": {
+          "type": "string"
+        }
+      }
+    },
+    "auth.ForgotPasswordOutput": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "reset_token": {
+          "type": "string"
+        }
+      }
+    },
+    "auth.ResetPasswordInput": {
+      "type": "object",
+      "required": [
+        "token",
+        "new_password"
+      ],
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "new_password": {
           "type": "string",
-          "enum": ["citizen", "admin", "examiner", "officer"],
-          "example": "citizen"
+          "minLength": 8
+        }
+      }
+    },
+    "auth.BootstrapAdminInput": {
+      "type": "object",
+      "required": [
+        "secret",
+        "first_name",
+        "last_name",
+        "email",
+        "password"
+      ],
+      "properties": {
+        "secret": {
+          "type": "string"
+        },
+        "first_name": {
+          "type": "string"
+        },
+        "last_name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
         }
       }
     },
     "identity.SubmitInput": {
       "type": "object",
-      "required": ["national_id_number", "document_front_path", "document_back_path", "selfie_path"],
+      "required": [
+        "national_id_number",
+        "document_front_path",
+        "document_back_path",
+        "selfie_path"
+      ],
       "properties": {
-        "national_id_number": { "type": "string", "example": "123456789" },
-        "document_front_path": { "type": "string", "example": "/uploads/id-front.jpg" },
-        "document_back_path": { "type": "string", "example": "/uploads/id-back.jpg" },
-        "selfie_path": { "type": "string", "example": "/uploads/selfie.jpg" }
+        "national_id_number": {
+          "type": "string"
+        },
+        "document_front_path": {
+          "type": "string"
+        },
+        "document_back_path": {
+          "type": "string"
+        },
+        "selfie_path": {
+          "type": "string"
+        }
       }
     },
     "identity.DecisionInput": {
       "type": "object",
       "properties": {
-        "comment": { "type": "string", "example": "Documents verified" }
+        "comment": {
+          "type": "string"
+        }
       }
     },
     "identity.IdentityVerification": {
       "type": "object",
       "properties": {
-        "id": { "type": "string", "example": "507f1f77bcf86cd799439012" },
-        "user_id": { "type": "string", "example": "507f1f77bcf86cd799439011" },
-        "national_id_number": { "type": "string", "example": "123456789" },
-        "document_front_path": { "type": "string", "example": "/uploads/id-front.jpg" },
-        "document_back_path": { "type": "string", "example": "/uploads/id-back.jpg" },
-        "selfie_path": { "type": "string", "example": "/uploads/selfie.jpg" },
+        "id": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "national_id_number": {
+          "type": "string"
+        },
+        "document_front_path": {
+          "type": "string"
+        },
+        "document_back_path": {
+          "type": "string"
+        },
+        "selfie_path": {
+          "type": "string"
+        },
         "status": {
           "type": "string",
-          "enum": ["", "pending", "approved", "rejected"],
-          "example": "pending"
+          "enum": [
+            "",
+            "pending",
+            "approved",
+            "rejected"
+          ]
         },
-        "reviewed_by": { "type": "string", "example": "507f1f77bcf86cd799439013" },
-        "review_comment": { "type": "string", "example": "Approved" },
-        "submitted_at": { "type": "string", "format": "date-time" },
-        "reviewed_at": { "type": "string", "format": "date-time" }
+        "reviewed_by": {
+          "type": "string"
+        },
+        "review_comment": {
+          "type": "string"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reviewed_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "licenses.CreateInput": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "motorcycle",
+            "car",
+            "truck",
+            "bus"
+          ]
+        }
+      }
+    },
+    "licenses.License": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "user_id": {
+          "type": "string"
+        },
+        "license_number": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "issue_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiry_date": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "exams.StartInput": {
+      "type": "object",
+      "required": [
+        "license_type"
+      ],
+      "properties": {
+        "license_type": {
+          "type": "string",
+          "enum": [
+            "motorcycle",
+            "car",
+            "truck",
+            "bus"
+          ]
+        }
+      }
+    },
+    "exams.StartOutput": {
+      "type": "object",
+      "properties": {
+        "attempt": {
+          "type": "object"
+        },
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "exams.SubmitInput": {
+      "type": "object",
+      "required": [
+        "answers"
+      ],
+      "properties": {
+        "answers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/exams.AnswerInput"
+          }
+        }
+      }
+    },
+    "exams.AnswerInput": {
+      "type": "object",
+      "properties": {
+        "question_id": {
+          "type": "string"
+        },
+        "selected_option_id": {
+          "type": "string"
+        }
+      }
+    },
+    "exams.SubmitOutput": {
+      "type": "object",
+      "properties": {
+        "attempt": {
+          "type": "object"
+        },
+        "passed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "practical.BookInput": {
+      "type": "object",
+      "required": [
+        "slot_id"
+      ],
+      "properties": {
+        "slot_id": {
+          "type": "string"
+        }
+      }
+    },
+    "practical.ResultInput": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "type": "string",
+          "enum": [
+            "pass",
+            "fail"
+          ]
+        },
+        "comments": {
+          "type": "string"
+        },
+        "dangerous_action": {
+          "type": "boolean"
+        }
+      }
+    },
+    "vehicles.CreateInput": {
+      "type": "object",
+      "required": [
+        "vin",
+        "plate_number",
+        "make",
+        "model",
+        "year"
+      ],
+      "properties": {
+        "vin": {
+          "type": "string"
+        },
+        "plate_number": {
+          "type": "string"
+        },
+        "make": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "year": {
+          "type": "integer"
+        }
+      }
+    },
+    "vehicles.TransferInput": {
+      "type": "object",
+      "required": [
+        "buyer_id"
+      ],
+      "properties": {
+        "buyer_id": {
+          "type": "string"
+        }
+      }
+    },
+    "inspections.ScheduleInput": {
+      "type": "object",
+      "required": [
+        "vehicle_id"
+      ],
+      "properties": {
+        "vehicle_id": {
+          "type": "string"
+        }
+      }
+    },
+    "inspections.UploadReportInput": {
+      "type": "object",
+      "required": [
+        "report_path"
+      ],
+      "properties": {
+        "report_path": {
+          "type": "string"
+        }
+      }
+    },
+    "monitoring.DeviceDataInput": {
+      "type": "object",
+      "properties": {
+        "device_serial": {
+          "type": "string"
+        },
+        "vehicle_id": {
+          "type": "string"
+        },
+        "speed": {
+          "type": "number"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "payments.InitiateInput": {
+      "type": "object",
+      "required": [
+        "service_type"
+      ],
+      "properties": {
+        "service_type": {
+          "type": "string",
+          "enum": [
+            "theory_exam",
+            "license",
+            "inspection",
+            "transfer"
+          ]
+        }
+      }
+    },
+    "payments.Payment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "service_type": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string"
+        },
+        "transaction_id": {
+          "type": "string"
+        }
+      }
+    },
+    "analytics.Overview": {
+      "type": "object",
+      "properties": {
+        "total_users": {
+          "type": "integer"
+        },
+        "active_licenses": {
+          "type": "integer"
+        },
+        "pending_identity": {
+          "type": "integer"
+        },
+        "total_vehicles": {
+          "type": "integer"
+        }
+      }
+    },
+    "analytics.Revenue": {
+      "type": "object",
+      "properties": {
+        "total_revenue": {
+          "type": "number"
+        },
+        "paid_count": {
+          "type": "integer"
+        }
+      }
+    },
+    "analytics.Exams": {
+      "type": "object",
+      "properties": {
+        "total_attempts": {
+          "type": "integer"
+        },
+        "passed": {
+          "type": "integer"
+        },
+        "failed": {
+          "type": "integer"
+        }
       }
     }
   }

@@ -49,7 +49,11 @@ Railway sets `PORT` automatically. Swagger UI: `https://<your-app>.up.railway.ap
 
 ### Swagger (API docs for frontend)
 
-The OpenAPI spec lives in [`docs/swagger.json`](docs/swagger.json). Send that file (or the URLs below) to your frontend developer.
+The OpenAPI spec lives in [`docs/swagger.json`](docs/swagger.json) (40 endpoints). Regenerate after route changes:
+
+```bash
+python scripts/build_swagger.py
+```
 
 Run the API and open Swagger UI:
 
