@@ -97,3 +97,43 @@ func (h *Handlers) BootstrapAdmin(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, out)
 }
+
+func (h *Handlers) VerifyEmail(c *gin.Context) {
+	var in VerifyEmailInput
+	if err := c.ShouldBindJSON(&in); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := h.svc.VerifyEmail(c.Request.Context(), in); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "email verified"})
+}
+
+func (h *Handlers) ForgotPassword(c *gin.Context) {
+	var in ForgotPasswordInput
+	if err := c.ShouldBindJSON(&in); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	out, err := h.svc.ForgotPassword(c.Request.Context(), in)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, out)
+}
+
+func (h *Handlers) ResetPassword(c *gin.Context) {
+	var in ResetPasswordInput
+	if err := c.ShouldBindJSON(&in); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := h.svc.ResetPassword(c.Request.Context(), in); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "password reset successful"})
+}

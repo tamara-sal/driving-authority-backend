@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "Driving Authority API",
-    "description": "REST API for auth, JWT, RBAC, and identity verification.",
+    "description": "Government-grade Driving Authority API: auth, identity, licenses, exams, practical tests, vehicles, inspections, monitoring, payments, analytics. See scripts/generate-swagger-paths.md for full route list.",
     "version": "1.0",
     "contact": {
       "name": "API Support",
@@ -13,9 +13,9 @@
       "url": "https://opensource.org/licenses/MIT"
     }
   },
-  "host": "localhost:8080",
+  "host": "api-production-5e10.up.railway.app",
   "basePath": "/api/v1",
-  "schemes": ["http"],
+  "schemes": ["https", "http"],
   "securityDefinitions": {
     "BearerAuth": {
       "type": "apiKey",

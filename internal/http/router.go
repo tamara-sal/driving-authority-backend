@@ -6,8 +6,16 @@ import (
 	"driving-authority-backend/internal/config"
 	"driving-authority-backend/internal/domain"
 	"driving-authority-backend/internal/http/middleware"
+	"driving-authority-backend/internal/modules/analytics"
 	"driving-authority-backend/internal/modules/auth"
+	"driving-authority-backend/internal/modules/exams"
 	"driving-authority-backend/internal/modules/identity"
+	"driving-authority-backend/internal/modules/inspections"
+	"driving-authority-backend/internal/modules/licenses"
+	"driving-authority-backend/internal/modules/monitoring"
+	"driving-authority-backend/internal/modules/payments"
+	"driving-authority-backend/internal/modules/practical"
+	"driving-authority-backend/internal/modules/vehicles"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -18,10 +26,12 @@ import (
 func NewRouter(cfg config.Config, db *mongo.Database) http.Handler {
 	r := gin.New()
 	r.Use(gin.Recovery())
+	r.Use(middleware.CORS())
 	r.Use(middleware.RequestLogger())
 
 	jwt := middleware.NewJWT(cfg.JWTSecret, cfg.JWTIssuer, cfg.JWTAccessTTLMinute)
 
+	r.GET("/", Root)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api := r.Group("/api/v1")
@@ -32,6 +42,30 @@ func NewRouter(cfg config.Config, db *mongo.Database) http.Handler {
 
 	identityModule := identity.NewModule(db)
 	identityModule.RegisterRoutes(api, jwt)
+
+	licensesModule := licenses.NewModule(db)
+	licensesModule.RegisterRoutes(api, jwt)
+
+	examsModule := exams.NewModule(db)
+	examsModule.RegisterRoutes(api, jwt)
+
+	practicalModule := practical.NewModule(db)
+	practicalModule.RegisterRoutes(api, jwt)
+
+	vehiclesModule := vehicles.NewModule(db)
+	vehiclesModule.RegisterRoutes(api, jwt)
+
+	inspectionsModule := inspections.NewModule(db)
+	inspectionsModule.RegisterRoutes(api, jwt)
+
+	monitoringModule := monitoring.NewModule(db)
+	monitoringModule.RegisterRoutes(api, jwt)
+
+	paymentsModule := payments.NewModule(db)
+	paymentsModule.RegisterRoutes(api, jwt)
+
+	analyticsModule := analytics.NewModule(db)
+	analyticsModule.RegisterRoutes(api, jwt)
 
 	api.GET("/me", jwt.RequireAuth(), Me)
 

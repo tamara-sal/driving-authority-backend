@@ -58,13 +58,22 @@ Run the API and open Swagger UI:
 
 In Swagger UI, click **Authorize** and enter `Bearer <access_token>` (from login/register).
 
-### Starter endpoints
+### API modules (from system spec)
 
-- `POST /auth/register`
-- `POST /auth/login`
-- `GET /me` (JWT)
-- `POST /identity/submit` (Citizen)
-- `GET /identity/status` (Citizen)
-- `PUT /admin/identity/:id/approve` (Admin)
-- `PUT /admin/identity/:id/reject` (Admin)
+Full endpoint list: [`scripts/generate-swagger-paths.md`](scripts/generate-swagger-paths.md)
+
+| Module | Highlights |
+|--------|------------|
+| Auth | register, login, verify-email, forgot/reset password |
+| Identity | submit, status, admin approve/reject |
+| Licenses | apply, approve, renew |
+| Theory exam | 30 MCQs, start/submit, history |
+| Practical | centers, slots, book, examiner result |
+| Vehicles | register, transfer, admin approve |
+| Inspection | schedule, upload report path |
+| Monitoring | device data, trips, safety score |
+| Payments | initiate, history, admin mark-paid |
+| Analytics | admin overview, revenue, exams |
+
+Roles: `citizen`, `admin`, `examiner`, `officer` (RBAC on routes).
 

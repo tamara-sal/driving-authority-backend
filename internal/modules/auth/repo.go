@@ -51,3 +51,21 @@ func (r *UserRepo) FindByEmail(ctx context.Context, email string) (User, error) 
 	err := r.coll.FindOne(ctx, bson.M{"email": email}).Decode(&u)
 	return u, err
 }
+
+func (r *UserRepo) SetEmailVerified(ctx context.Context, id primitive.ObjectID, verified bool) error {
+	_, err := r.coll.UpdateOne(ctx, bson.M{"_id": id}, bson.M{
+		"$set": bson.M{"email_verified": verified, "updated_at": time.Now()},
+	})
+	return err
+}
+
+func (r *UserRepo) UpdatePasswordHash(ctx context.Context, id primitive.ObjectID, hash string) error {
+	_, err := r.coll.UpdateOne(ctx, bson.M{"_id": id}, bson.M{
+		"$set": bson.M{"password_hash": hash, "updated_at": time.Now()},
+	})
+	return err
+}
+
+func (r *UserRepo) Count(ctx context.Context) (int64, error) {
+	return r.coll.CountDocuments(ctx, bson.M{})
+}

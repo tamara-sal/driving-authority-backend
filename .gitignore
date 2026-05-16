@@ -8,3 +8,5 @@ dist/
 .vscode/
 *.log
 mongo_data/
+docs/pdf_extract.txt
+api.exe

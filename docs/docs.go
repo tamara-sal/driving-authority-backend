@@ -13,9 +13,9 @@ var swaggerJSON string
 // SwaggerInfo holds exported Swagger metadata.
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "api-production-5e10.up.railway.app",
 	BasePath:         "/api/v1",
-	Schemes:          []string{"http"},
+	Schemes:          []string{"https", "http"},
 	Title:            "Driving Authority API",
 	Description:      "REST API for auth, JWT, RBAC, and identity verification.",
 	InfoInstanceName: "swagger",

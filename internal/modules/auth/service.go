@@ -18,12 +18,13 @@ var ErrInvalidCredentials = errors.New("invalid credentials")
 
 type Service struct {
 	repo                 *UserRepo
+	tokens               *TokenRepo
 	jwt                  *middleware.JWT
 	bootstrapAdminSecret string
 }
 
-func NewService(repo *UserRepo, jwt *middleware.JWT, bootstrapAdminSecret string) *Service {
-	return &Service{repo: repo, jwt: jwt, bootstrapAdminSecret: bootstrapAdminSecret}
+func NewService(repo *UserRepo, tokens *TokenRepo, jwt *middleware.JWT, bootstrapAdminSecret string) *Service {
+	return &Service{repo: repo, tokens: tokens, jwt: jwt, bootstrapAdminSecret: bootstrapAdminSecret}
 }
 
 type RegisterInput struct {
@@ -35,10 +36,11 @@ type RegisterInput struct {
 }
 
 type AuthOutput struct {
-	AccessToken string `json:"access_token"`
-	UserID      string `json:"user_id"`
-	Email       string `json:"email"`
-	Role        string `json:"role"`
+	AccessToken       string `json:"access_token"`
+	UserID            string `json:"user_id"`
+	Email             string `json:"email"`
+	Role              string `json:"role"`
+	VerificationToken string `json:"verification_token,omitempty"`
 }
 
 func (s *Service) Register(ctx context.Context, in RegisterInput) (AuthOutput, error) {
@@ -67,16 +69,18 @@ func (s *Service) Register(ctx context.Context, in RegisterInput) (AuthOutput, e
 		return AuthOutput{}, err
 	}
 
+	vTok, _ := s.tokens.CreateEmailVerification(ctx, u.ID)
 	tok, err := s.jwt.SignAccessToken(u.ID, u.Email, u.Role)
 	if err != nil {
 		return AuthOutput{}, err
 	}
 
 	return AuthOutput{
-		AccessToken: tok,
-		UserID:      u.ID.Hex(),
-		Email:       u.Email,
-		Role:        string(u.Role),
+		AccessToken:       tok,
+		UserID:            u.ID.Hex(),
+		Email:             u.Email,
+		Role:              string(u.Role),
+		VerificationToken: vTok,
 	}, nil
 }
 
@@ -143,6 +147,10 @@ func (s *Service) Login(ctx context.Context, in LoginInput) (AuthOutput, error) 
 		return AuthOutput{}, err
 	}
 
+	if u.Status != domain.AccountActive {
+		return AuthOutput{}, errors.New("account is not active")
+	}
+
 	if err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(in.Password)); err != nil {
 		return AuthOutput{}, ErrInvalidCredentials
 	}
@@ -158,4 +166,42 @@ func (s *Service) Login(ctx context.Context, in LoginInput) (AuthOutput, error) 
 		Email:       u.Email,
 		Role:        string(u.Role),
 	}, nil
+}
+
+type VerifyEmailInput struct {
+	Token string `json:"token" binding:"required"`
+}
+
+func (s *Service) VerifyEmail(ctx context.Context, in VerifyEmailInput) error {
+	return s.tokens.VerifyEmail(ctx, in.Token)
+}
+
+type ForgotPasswordInput struct {
+	Email string `json:"email" binding:"required,email"`
+}
+
+type ForgotPasswordOutput struct {
+	ResetToken string `json:"reset_token,omitempty"`
+	Message    string `json:"message"`
+}
+
+func (s *Service) ForgotPassword(ctx context.Context, in ForgotPasswordInput) (ForgotPasswordOutput, error) {
+	tok, err := s.tokens.CreatePasswordReset(ctx, strings.ToLower(strings.TrimSpace(in.Email)))
+	if err != nil {
+		return ForgotPasswordOutput{}, err
+	}
+	out := ForgotPasswordOutput{Message: "if the email exists, a reset link was sent"}
+	if tok != "" {
+		out.ResetToken = tok // dev convenience; remove when email service is wired
+	}
+	return out, nil
+}
+
+type ResetPasswordInput struct {
+	Token       string `json:"token" binding:"required"`
+	NewPassword string `json:"new_password" binding:"required,min=8"`
+}
+
+func (s *Service) ResetPassword(ctx context.Context, in ResetPasswordInput) error {
+	return s.tokens.ResetPassword(ctx, in.Token, in.NewPassword)
 }
