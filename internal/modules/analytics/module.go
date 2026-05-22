@@ -23,4 +23,5 @@ func (m *Module) RegisterRoutes(rg *gin.RouterGroup, jwt *middleware.JWT) {
 	admin.GET("/overview", m.h.Overview)
 	admin.GET("/revenue", m.h.Revenue)
 	admin.GET("/exams", m.h.Exams)
+	admin.GET("/trends", m.h.Trends)
 }

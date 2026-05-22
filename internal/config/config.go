@@ -20,6 +20,7 @@ type Config struct {
 	JWTAccessTTLMinute int
 
 	BootstrapAdminSecret string
+	SeedDemoUsers        bool
 }
 
 func Load() (Config, error) {
@@ -33,6 +34,7 @@ func Load() (Config, error) {
 		JWTSecret:            getEnv("JWT_SECRET", ""),
 		JWTIssuer:            getEnv("JWT_ISSUER", "driving-authority"),
 		BootstrapAdminSecret: getEnv("BOOTSTRAP_ADMIN_SECRET", ""),
+		SeedDemoUsers:        getEnvBool("SEED_DEMO_USERS", true),
 	}
 
 	ttlStr := getEnv("JWT_ACCESS_TTL_MINUTES", "60")
@@ -58,4 +60,16 @@ func getEnv(key, def string) string {
 		return def
 	}
 	return v
+}
+
+func getEnvBool(key string, def bool) bool {
+	v := os.Getenv(key)
+	if v == "" {
+		return def
+	}
+	b, err := strconv.ParseBool(v)
+	if err != nil {
+		return def
+	}
+	return b
 }

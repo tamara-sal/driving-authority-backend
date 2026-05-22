@@ -4,8 +4,10 @@ import (
 	"context"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Log struct {
@@ -36,4 +38,38 @@ func (l *Logger) Record(ctx context.Context, userID primitive.ObjectID, action, 
 		IPAddress:  ip,
 		CreatedAt:  time.Now(),
 	})
+}
+
+func (l *Logger) List(ctx context.Context, limit int64) ([]Log, error) {
+	opts := options.Find().SetSort(bson.D{{Key: "created_at", Value: -1}}).SetLimit(limit)
+	cur, err := l.coll.Find(ctx, bson.M{}, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+	var out []Log
+	if err := cur.All(ctx, &out); err != nil {
+		return nil, err
+	}
+	if out == nil {
+		out = []Log{}
+	}
+	return out, nil
+}
+
+func (l *Logger) ListByUser(ctx context.Context, userID primitive.ObjectID, limit int64) ([]Log, error) {
+	opts := options.Find().SetSort(bson.D{{Key: "created_at", Value: -1}}).SetLimit(limit)
+	cur, err := l.coll.Find(ctx, bson.M{"user_id": userID}, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+	var out []Log
+	if err := cur.All(ctx, &out); err != nil {
+		return nil, err
+	}
+	if out == nil {
+		out = []Log{}
+	}
+	return out, nil
 }

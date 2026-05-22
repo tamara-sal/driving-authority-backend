@@ -10,6 +10,7 @@ import (
 	"driving-authority-backend/internal/http/middleware"
 
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -28,8 +29,9 @@ func NewService(repo *UserRepo, tokens *TokenRepo, jwt *middleware.JWT, bootstra
 }
 
 type RegisterInput struct {
-	FirstName string `json:"first_name" binding:"required"`
-	LastName  string `json:"last_name" binding:"required"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	FullName  string `json:"full_name"`
 	Email     string `json:"email" binding:"required,email"`
 	Password  string `json:"password" binding:"required,min=8"`
 	Phone     string `json:"phone"`
@@ -39,11 +41,63 @@ type AuthOutput struct {
 	AccessToken       string `json:"access_token"`
 	UserID            string `json:"user_id"`
 	Email             string `json:"email"`
+	Name              string `json:"name"`
 	Role              string `json:"role"`
+	Redirect          string `json:"redirect,omitempty"`
 	VerificationToken string `json:"verification_token,omitempty"`
 }
 
+func normalizeRegisterInput(in *RegisterInput) error {
+	if strings.TrimSpace(in.FirstName) == "" && strings.TrimSpace(in.LastName) == "" {
+		full := strings.TrimSpace(in.FullName)
+		if full == "" {
+			return errors.New("full_name or first_name and last_name required")
+		}
+		parts := strings.Fields(full)
+		in.FirstName = parts[0]
+		if len(parts) > 1 {
+			in.LastName = strings.Join(parts[1:], " ")
+		}
+	}
+	if strings.TrimSpace(in.FirstName) == "" {
+		return errors.New("first_name required")
+	}
+	return nil
+}
+
+func userDisplayName(u User) string {
+	return strings.TrimSpace(u.FirstName + " " + u.LastName)
+}
+
+func roleRedirect(role domain.Role) string {
+	switch role {
+	case domain.RoleAdmin:
+		return "/dashboard/admin"
+	case domain.RoleExaminer:
+		return "/dashboard/examiner"
+	case domain.RoleOfficer:
+		return "/dashboard/officer"
+	default:
+		return "/dashboard/citizen"
+	}
+}
+
+func authOutput(u User, tok, vTok string) AuthOutput {
+	return AuthOutput{
+		AccessToken:       tok,
+		UserID:            u.ID.Hex(),
+		Email:             u.Email,
+		Name:              userDisplayName(u),
+		Role:              string(u.Role),
+		Redirect:          roleRedirect(u.Role),
+		VerificationToken: vTok,
+	}
+}
+
 func (s *Service) Register(ctx context.Context, in RegisterInput) (AuthOutput, error) {
+	if err := normalizeRegisterInput(&in); err != nil {
+		return AuthOutput{}, err
+	}
 	email := strings.ToLower(strings.TrimSpace(in.Email))
 	pwHash, err := bcrypt.GenerateFromPassword([]byte(in.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -75,13 +129,7 @@ func (s *Service) Register(ctx context.Context, in RegisterInput) (AuthOutput, e
 		return AuthOutput{}, err
 	}
 
-	return AuthOutput{
-		AccessToken:       tok,
-		UserID:            u.ID.Hex(),
-		Email:             u.Email,
-		Role:              string(u.Role),
-		VerificationToken: vTok,
-	}, nil
+	return authOutput(u, tok, vTok), nil
 }
 
 type BootstrapAdminInput struct {
@@ -124,12 +172,7 @@ func (s *Service) BootstrapAdmin(ctx context.Context, in BootstrapAdminInput) (A
 		return AuthOutput{}, err
 	}
 
-	return AuthOutput{
-		AccessToken: tok,
-		UserID:      u.ID.Hex(),
-		Email:       u.Email,
-		Role:        string(u.Role),
-	}, nil
+	return authOutput(u, tok, ""), nil
 }
 
 type LoginInput struct {
@@ -160,12 +203,7 @@ func (s *Service) Login(ctx context.Context, in LoginInput) (AuthOutput, error) 
 		return AuthOutput{}, err
 	}
 
-	return AuthOutput{
-		AccessToken: tok,
-		UserID:      u.ID.Hex(),
-		Email:       u.Email,
-		Role:        string(u.Role),
-	}, nil
+	return authOutput(u, tok, ""), nil
 }
 
 type VerifyEmailInput struct {
@@ -204,4 +242,54 @@ type ResetPasswordInput struct {
 
 func (s *Service) ResetPassword(ctx context.Context, in ResetPasswordInput) error {
 	return s.tokens.ResetPassword(ctx, in.Token, in.NewPassword)
+}
+
+func (s *Service) GetUser(ctx context.Context, id primitive.ObjectID) (User, error) {
+	return s.repo.FindByID(ctx, id)
+}
+
+// DemoPassword is the shared password for seeded demo accounts (matches frontend README).
+const DemoPassword = "Password123!"
+
+var demoAccounts = []User{
+	{FirstName: "John", LastName: "Citizen", Email: "citizen@example.com", Role: domain.RoleCitizen},
+	{FirstName: "Alice", LastName: "Admin", Email: "admin@example.com", Role: domain.RoleAdmin},
+	{FirstName: "Bob", LastName: "Examiner", Email: "examiner@example.com", Role: domain.RoleExaminer},
+	{FirstName: "Officer", LastName: "Davis", Email: "officer@example.com", Role: domain.RoleOfficer},
+}
+
+type SeedDemoOutput struct {
+	Message  string   `json:"message"`
+	Password string   `json:"password"`
+	Accounts []string `json:"accounts"`
+}
+
+func (s *Service) SeedDemoUsers(ctx context.Context) (SeedDemoOutput, error) {
+	pwHash, err := bcrypt.GenerateFromPassword([]byte(DemoPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return SeedDemoOutput{}, err
+	}
+	emails := make([]string, 0, len(demoAccounts))
+	for _, d := range demoAccounts {
+		u := User{
+			UUID:          uuid.NewString(),
+			FirstName:     d.FirstName,
+			LastName:      d.LastName,
+			Email:         strings.ToLower(d.Email),
+			PasswordHash:  string(pwHash),
+			Phone:         "+10000000000",
+			Role:          d.Role,
+			Status:        domain.AccountActive,
+			EmailVerified: true,
+		}
+		if err := s.repo.UpsertDemo(ctx, u); err != nil {
+			return SeedDemoOutput{}, err
+		}
+		emails = append(emails, u.Email)
+	}
+	return SeedDemoOutput{
+		Message:  "4 demo users ready",
+		Password: DemoPassword,
+		Accounts: emails,
+	}, nil
 }

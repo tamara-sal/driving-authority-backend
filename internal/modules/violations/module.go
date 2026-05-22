@@ -1,4 +1,4 @@
-package inspections
+package violations
 
 import (
 	"driving-authority-backend/internal/domain"
@@ -19,8 +19,8 @@ func NewModule(db *mongo.Database) *Module {
 }
 
 func (m *Module) RegisterRoutes(rg *gin.RouterGroup, jwt *middleware.JWT) {
-	insp := rg.Group("/inspection", jwt.RequireAuth())
-	insp.GET("", m.h.List)
-	insp.POST("/schedule", middleware.RequireRole(domain.RoleCitizen), m.h.Schedule)
-	insp.POST("/:id/upload-report", middleware.RequireRole(domain.RoleCitizen), m.h.UploadReport)
+	v := rg.Group("/violations", jwt.RequireAuth())
+	v.GET("", m.h.List)
+	v.POST("", middleware.RequireRole(domain.RoleOfficer, domain.RoleAdmin), m.h.Create)
+	v.PUT("/:id/status", middleware.RequireRole(domain.RoleOfficer, domain.RoleAdmin), m.h.UpdateStatus)
 }

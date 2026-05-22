@@ -26,4 +26,5 @@ func (m *Module) RegisterRoutes(rg *gin.RouterGroup, jwt *middleware.JWT) {
 
 	admin := rg.Group("/admin/licenses", jwt.RequireAuth(), middleware.RequireRole(domain.RoleAdmin))
 	admin.PUT("/:id/approve", m.h.Approve)
+	admin.PUT("/:id/reject", m.h.Reject)
 }

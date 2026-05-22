@@ -14,7 +14,8 @@ type Vehicle struct {
 	PlateNumber string              `bson:"plate_number" json:"plate_number"`
 	Make        string              `bson:"make" json:"make"`
 	Model       string              `bson:"model" json:"model"`
-	Year        int                 `bson:"year" json:"year"`
+	Year        int                  `bson:"year" json:"year"`
+	Color       string               `bson:"color,omitempty" json:"color,omitempty"`
 	Status      domain.VehicleStatus `bson:"status" json:"status"`
 	OwnerID     primitive.ObjectID  `bson:"owner_id" json:"owner_id"`
 	CreatedAt   time.Time           `bson:"created_at" json:"created_at"`

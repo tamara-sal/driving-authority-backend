@@ -19,3 +19,13 @@ type ExamStats struct {
 	Failed        int64 `json:"failed"`
 	InProgress    int64 `json:"in_progress"`
 }
+
+type TrendPoint struct {
+	Month       string  `json:"month"`
+	Licenses    int64   `json:"licenses"`
+	Inspections int64   `json:"inspections"`
+	Revenue     float64 `json:"revenue"`
+	Safety      int64   `json:"safety"`
+	Violations  int64   `json:"violations"`
+	Distance    int64   `json:"distance"`
+}

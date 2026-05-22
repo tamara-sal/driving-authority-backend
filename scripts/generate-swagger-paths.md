@@ -9,6 +9,7 @@ All under `/api/v1` unless noted.
 
 ## Auth
 - POST `/auth/register`, `/auth/login`, `/auth/verify-email`, `/auth/forgot-password`, `/auth/reset-password`
+- POST `/auth/seed-demo` — upsert 4 demo users (citizen/admin/examiner/officer @example.com)
 
 ## Identity
 - POST `/identity/submit`, GET `/identity/status`
@@ -41,6 +42,18 @@ All under `/api/v1` unless noted.
 
 ## Analytics (admin)
 - GET `/admin/analytics/overview`, `/admin/analytics/revenue`, `/admin/analytics/exams`
+
+## Notifications
+- GET `/notifications`, PATCH `/notifications/{id}/read`
+
+## Violations
+- GET `/violations`, POST `/violations` (officer/admin), PUT `/violations/{id}/status`
+
+## Activity & admin lists
+- GET `/activity`
+- GET `/admin/users`, `/admin/applications`, `/admin/audit-logs`
+- PUT `/admin/licenses/{id}/reject`
+- GET `/admin/vehicles`, `/admin/analytics/trends`
 
 ## Profile
 - GET `/me`, GET `/admin/ping`

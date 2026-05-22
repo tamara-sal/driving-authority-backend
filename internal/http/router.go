@@ -13,9 +13,12 @@ import (
 	"driving-authority-backend/internal/modules/inspections"
 	"driving-authority-backend/internal/modules/licenses"
 	"driving-authority-backend/internal/modules/monitoring"
+	"driving-authority-backend/internal/modules/notifications"
 	"driving-authority-backend/internal/modules/payments"
+	"driving-authority-backend/internal/modules/platform"
 	"driving-authority-backend/internal/modules/practical"
 	"driving-authority-backend/internal/modules/vehicles"
+	"driving-authority-backend/internal/modules/violations"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -67,7 +70,14 @@ func NewRouter(cfg config.Config, db *mongo.Database) http.Handler {
 	analyticsModule := analytics.NewModule(db)
 	analyticsModule.RegisterRoutes(api, jwt)
 
-	api.GET("/me", jwt.RequireAuth(), Me)
+	notificationsModule := notifications.NewModule(db)
+	notificationsModule.RegisterRoutes(api, jwt)
+
+	violationsModule := violations.NewModule(db)
+	violationsModule.RegisterRoutes(api, jwt)
+
+	platformModule := platform.NewModule(db)
+	platformModule.RegisterRoutes(api, jwt)
 
 	api.GET("/admin/ping", jwt.RequireAuth(), middleware.RequireRole(domain.RoleAdmin), AdminPing)
 

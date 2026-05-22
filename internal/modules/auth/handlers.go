@@ -3,6 +3,8 @@ package auth
 import (
 	"net/http"
 
+	"driving-authority-backend/internal/http/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -118,6 +120,31 @@ func (h *Handlers) ForgotPassword(c *gin.Context) {
 		return
 	}
 	out, err := h.svc.ForgotPassword(c.Request.Context(), in)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, out)
+}
+
+func (h *Handlers) Me(c *gin.Context) {
+	user := middleware.GetAuthUser(c)
+	u, err := h.svc.GetUser(c.Request.Context(), user.ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"id":    u.ID.Hex(),
+		"email": u.Email,
+		"name":  userDisplayName(u),
+		"phone": u.Phone,
+		"role":  string(u.Role),
+	})
+}
+
+func (h *Handlers) SeedDemo(c *gin.Context) {
+	out, err := h.svc.SeedDemoUsers(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

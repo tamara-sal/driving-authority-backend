@@ -1,7 +1,9 @@
-package analytics
+package platform
 
 import (
 	"net/http"
+
+	"driving-authority-backend/internal/http/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,8 +16,8 @@ func NewHandlers(svc *Service) *Handlers {
 	return &Handlers{svc: svc}
 }
 
-func (h *Handlers) Overview(c *gin.Context) {
-	out, err := h.svc.Overview(c.Request.Context())
+func (h *Handlers) ListUsers(c *gin.Context) {
+	out, err := h.svc.ListUsers(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -23,8 +25,8 @@ func (h *Handlers) Overview(c *gin.Context) {
 	c.JSON(http.StatusOK, out)
 }
 
-func (h *Handlers) Revenue(c *gin.Context) {
-	out, err := h.svc.Revenue(c.Request.Context())
+func (h *Handlers) ListApplications(c *gin.Context) {
+	out, err := h.svc.ListApplications(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -32,8 +34,9 @@ func (h *Handlers) Revenue(c *gin.Context) {
 	c.JSON(http.StatusOK, out)
 }
 
-func (h *Handlers) Exams(c *gin.Context) {
-	out, err := h.svc.ExamStats(c.Request.Context())
+func (h *Handlers) ListActivity(c *gin.Context) {
+	user := middleware.GetAuthUser(c)
+	out, err := h.svc.ListActivity(c.Request.Context(), user.ID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -41,8 +44,8 @@ func (h *Handlers) Exams(c *gin.Context) {
 	c.JSON(http.StatusOK, out)
 }
 
-func (h *Handlers) Trends(c *gin.Context) {
-	out, err := h.svc.Trends(c.Request.Context())
+func (h *Handlers) ListAuditLogs(c *gin.Context) {
+	out, err := h.svc.ListAuditLogs(c.Request.Context())
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

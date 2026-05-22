@@ -29,7 +29,11 @@ func (h *Handlers) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, out)
+	c.JSON(http.StatusCreated, gin.H{
+		"ok":        true,
+		"reference": out.ReferenceID,
+		"data":      out,
+	})
 }
 
 func (h *Handlers) MyLicenses(c *gin.Context) {
@@ -49,6 +53,20 @@ func (h *Handlers) Approve(c *gin.Context) {
 		return
 	}
 	out, err := h.svc.Approve(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, out)
+}
+
+func (h *Handlers) Reject(c *gin.Context) {
+	id, err := primitive.ObjectIDFromHex(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+	out, err := h.svc.Reject(c.Request.Context(), id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

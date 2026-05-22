@@ -19,6 +19,7 @@ const (
 	LicenseSuspended LicenseStatus = "suspended"
 	LicenseExpired   LicenseStatus = "expired"
 	LicenseRevoked   LicenseStatus = "revoked"
+	LicenseRejected  LicenseStatus = "rejected"
 )
 
 type ExamAttemptStatus string

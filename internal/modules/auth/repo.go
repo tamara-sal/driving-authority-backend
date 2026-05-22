@@ -69,3 +69,49 @@ func (r *UserRepo) UpdatePasswordHash(ctx context.Context, id primitive.ObjectID
 func (r *UserRepo) Count(ctx context.Context) (int64, error) {
 	return r.coll.CountDocuments(ctx, bson.M{})
 }
+
+func (r *UserRepo) FindByID(ctx context.Context, id primitive.ObjectID) (User, error) {
+	var u User
+	err := r.coll.FindOne(ctx, bson.M{"_id": id}).Decode(&u)
+	return u, err
+}
+
+func (r *UserRepo) List(ctx context.Context) ([]User, error) {
+	cur, err := r.coll.Find(ctx, bson.M{}, options.Find().SetSort(bson.D{{Key: "created_at", Value: -1}}))
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+	var out []User
+	if err := cur.All(ctx, &out); err != nil {
+		return nil, err
+	}
+	if out == nil {
+		out = []User{}
+	}
+	return out, nil
+}
+
+func (r *UserRepo) UpsertDemo(ctx context.Context, u User) error {
+	existing, err := r.FindByEmail(ctx, u.Email)
+	if err != nil && err != mongo.ErrNoDocuments {
+		return err
+	}
+	if err == mongo.ErrNoDocuments {
+		_, err = r.Insert(ctx, u)
+		return err
+	}
+	_, err = r.coll.UpdateOne(ctx, bson.M{"_id": existing.ID}, bson.M{
+		"$set": bson.M{
+			"first_name":     u.FirstName,
+			"last_name":      u.LastName,
+			"role":           u.Role,
+			"status":         u.Status,
+			"password_hash":  u.PasswordHash,
+			"email_verified": u.EmailVerified,
+			"phone":          u.Phone,
+			"updated_at":     time.Now(),
+		},
+	})
+	return err
+}

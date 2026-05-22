@@ -28,6 +28,25 @@ go run .\cmd\api
 
 API base: `http://localhost:8080/api/v1`
 
+### Demo users (seed)
+
+On startup, when `SEED_DEMO_USERS=true` (default), the API upserts these accounts:
+
+| Role | Email | Password |
+|------|-------|----------|
+| Citizen | `citizen@example.com` | `Password123!` |
+| Admin | `admin@example.com` | `Password123!` |
+| Examiner | `examiner@example.com` | `Password123!` |
+| Officer | `officer@example.com` | `Password123!` |
+
+Re-run seed anytime:
+
+```bash
+curl -X POST http://localhost:8080/api/v1/auth/seed-demo
+```
+
+Or: `.\scripts\seed-demo.ps1`
+
 ### Deploy to Railway
 
 1. Push this repo to GitHub (see below).

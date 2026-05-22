@@ -23,3 +23,7 @@ func (s *Service) Revenue(ctx context.Context) (Revenue, error) {
 func (s *Service) ExamStats(ctx context.Context) (ExamStats, error) {
 	return s.repo.ExamStats(ctx)
 }
+
+func (s *Service) Trends(ctx context.Context) ([]TrendPoint, error) {
+	return s.repo.Trends(ctx)
+}

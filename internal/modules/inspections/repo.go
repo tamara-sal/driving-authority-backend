@@ -54,3 +54,35 @@ func (r *Repo) SetReport(ctx context.Context, id primitive.ObjectID, reportPath 
 func (r *Repo) Count(ctx context.Context) (int64, error) {
 	return r.coll.CountDocuments(ctx, bson.M{})
 }
+
+func (r *Repo) FindAll(ctx context.Context) ([]VehicleInspection, error) {
+	cur, err := r.coll.Find(ctx, bson.M{}, options.Find().SetSort(bson.D{{Key: "inspection_date", Value: -1}}))
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+	var out []VehicleInspection
+	if err := cur.All(ctx, &out); err != nil {
+		return nil, err
+	}
+	if out == nil {
+		out = []VehicleInspection{}
+	}
+	return out, nil
+}
+
+func (r *Repo) FindByUser(ctx context.Context, userID primitive.ObjectID) ([]VehicleInspection, error) {
+	cur, err := r.coll.Find(ctx, bson.M{"requested_by": userID}, options.Find().SetSort(bson.D{{Key: "inspection_date", Value: -1}}))
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+	var out []VehicleInspection
+	if err := cur.All(ctx, &out); err != nil {
+		return nil, err
+	}
+	if out == nil {
+		out = []VehicleInspection{}
+	}
+	return out, nil
+}

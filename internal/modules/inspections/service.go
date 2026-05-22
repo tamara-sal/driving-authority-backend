@@ -64,3 +64,52 @@ func (s *Service) UploadReport(ctx context.Context, id, userID primitive.ObjectI
 	}
 	return s.repo.SetReport(ctx, id, strings.TrimSpace(in.ReportPath), string(status))
 }
+
+type InspectionView struct {
+	ID      string `json:"id"`
+	Vehicle string `json:"vehicle"`
+	Date    string `json:"date"`
+	Result  string `json:"result"`
+	Report  string `json:"report"`
+}
+
+func (s *Service) List(ctx context.Context, userID primitive.ObjectID, all bool) ([]InspectionView, error) {
+	var (
+		items []VehicleInspection
+		err   error
+	)
+	if all {
+		items, err = s.repo.FindAll(ctx)
+	} else {
+		items, err = s.repo.FindByUser(ctx, userID)
+	}
+	if err != nil {
+		return nil, err
+	}
+	out := make([]InspectionView, 0, len(items))
+	for _, i := range items {
+		result := "Scheduled"
+		switch i.Status {
+		case domain.InspectionPassed:
+			result = "Passed"
+		case domain.InspectionFailed:
+			if i.ReportPath == "" {
+				result = "Scheduled"
+			} else {
+				result = "Failed"
+			}
+		}
+		report := "Pending"
+		if i.ReportPath != "" {
+			report = "View report"
+		}
+		out = append(out, InspectionView{
+			ID:      "INS-" + i.ID.Hex()[len(i.ID.Hex())-4:],
+			Vehicle: i.VehicleID.Hex()[len(i.VehicleID.Hex())-4:],
+			Date:    i.InspectionDate.Format("2006-01-02"),
+			Result:  result,
+			Report:  report,
+		})
+	}
+	return out, nil
+}

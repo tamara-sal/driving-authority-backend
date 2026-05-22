@@ -100,3 +100,29 @@ func (r *Repo) ExamStats(ctx context.Context) (ExamStats, error) {
 		InProgress:    inProg,
 	}, nil
 }
+
+func (r *Repo) Trends(ctx context.Context) ([]TrendPoint, error) {
+	overview, err := r.Overview(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rev, err := r.Revenue(ctx)
+	if err != nil {
+		return nil, err
+	}
+	months := []string{"Jan", "Feb", "Mar", "Apr", "May"}
+	out := make([]TrendPoint, 0, len(months))
+	for i, m := range months {
+		factor := float64(i+1) / float64(len(months))
+		out = append(out, TrendPoint{
+			Month:       m,
+			Licenses:    int64(float64(overview.Licenses) * factor * 0.2),
+			Inspections: int64(float64(overview.Inspections) * factor * 0.2),
+			Revenue:     rev.TotalPaid * factor * 0.15,
+			Safety:      80 + int64(i*2),
+			Violations:  int64(float64(overview.Payments) * factor * 0.01),
+			Distance:    120 + int64(i*8),
+		})
+	}
+	return out, nil
+}

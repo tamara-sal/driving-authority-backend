@@ -96,3 +96,31 @@ func (r *Repo) Renew(ctx context.Context, id, userID primitive.ObjectID, expiryD
 func (r *Repo) Count(ctx context.Context, filter bson.M) (int64, error) {
 	return r.coll.CountDocuments(ctx, filter)
 }
+
+func (r *Repo) FindAll(ctx context.Context) ([]License, error) {
+	cur, err := r.coll.Find(ctx, bson.M{}, options.Find().SetSort(bson.D{{Key: "created_at", Value: -1}}))
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+	var out []License
+	if err := cur.All(ctx, &out); err != nil {
+		return nil, err
+	}
+	if out == nil {
+		out = []License{}
+	}
+	return out, nil
+}
+
+func (r *Repo) Reject(ctx context.Context, id primitive.ObjectID) (License, error) {
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	var out License
+	err := r.coll.FindOneAndUpdate(ctx, bson.M{"_id": id}, bson.M{
+		"$set": bson.M{
+			"status":     domain.LicenseRejected,
+			"updated_at": time.Now(),
+		},
+	}, opts).Decode(&out)
+	return out, err
+}

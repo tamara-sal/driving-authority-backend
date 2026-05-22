@@ -109,6 +109,22 @@ func (r *Repo) CountVehicles(ctx context.Context) (int64, error) {
 	return r.vehicles.CountDocuments(ctx, bson.M{})
 }
 
+func (r *Repo) FindAll(ctx context.Context) ([]Vehicle, error) {
+	cur, err := r.vehicles.Find(ctx, bson.M{}, options.Find().SetSort(bson.D{{Key: "created_at", Value: -1}}))
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+	var out []Vehicle
+	if err := cur.All(ctx, &out); err != nil {
+		return nil, err
+	}
+	if out == nil {
+		out = []Vehicle{}
+	}
+	return out, nil
+}
+
 func (r *Repo) CountTransfers(ctx context.Context, filter bson.M) (int64, error) {
 	return r.transfers.CountDocuments(ctx, filter)
 }

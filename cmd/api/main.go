@@ -29,7 +29,9 @@ import (
 
 	"driving-authority-backend/internal/config"
 	"driving-authority-backend/internal/db"
+	"driving-authority-backend/internal/http/middleware"
 	apihttp "driving-authority-backend/internal/http"
+	"driving-authority-backend/internal/modules/auth"
 
 	_ "driving-authority-backend/docs"
 )
@@ -51,7 +53,19 @@ func main() {
 		_ = client.Disconnect(context.Background())
 	}()
 
-	router := apihttp.NewRouter(cfg, client.Database(cfg.MongoDB))
+	database := client.Database(cfg.MongoDB)
+	if cfg.SeedDemoUsers {
+		jwt := middleware.NewJWT(cfg.JWTSecret, cfg.JWTIssuer, cfg.JWTAccessTTLMinute)
+		mod := auth.NewModule(database, jwt, cfg.BootstrapAdminSecret)
+		out, err := mod.SeedDemoUsers(ctx)
+		if err != nil {
+			log.Printf("demo user seed failed: %v", err)
+		} else {
+			log.Printf("demo users seeded: %v (password: %s)", out.Accounts, out.Password)
+		}
+	}
+
+	router := apihttp.NewRouter(cfg, database)
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
