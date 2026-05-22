@@ -17,7 +17,7 @@ All under `/api/v1` unless noted.
 
 ## Licenses
 - POST `/licenses`, GET `/licenses/me`, PUT `/licenses/{id}/renew`
-- PUT `/admin/licenses/{id}/approve`
+- PUT `/admin/licenses/{id}/approve`, `/admin/licenses/{id}/reject`
 
 ## Theory exam
 - GET `/exam/questions`, POST `/exam/start`, POST `/exam/{attemptId}/submit`, GET `/exam/history`

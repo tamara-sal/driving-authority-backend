@@ -64,7 +64,18 @@ Or: `.\scripts\seed-demo.ps1`
 | `APP_ENV` | `production` |
 | `BOOTSTRAP_ADMIN_SECRET` | Optional; for one-time admin bootstrap |
 
-Railway sets `PORT` automatically. Swagger UI: `https://<your-app>.up.railway.app/swagger/index.html`
+Railway sets `PORT` automatically.
+
+**Live API (production):**
+
+| Item | URL |
+|------|-----|
+| Base URL | `https://api-production-5e10.up.railway.app/api/v1` |
+| Swagger | https://api-production-5e10.up.railway.app/swagger/index.html |
+| Health | https://api-production-5e10.up.railway.app/api/v1/health |
+| Seed demo users | `POST https://api-production-5e10.up.railway.app/api/v1/auth/seed-demo` |
+
+Frontend handoff doc: [`docs/API_HANDOFF.md`](docs/API_HANDOFF.md)
 
 ### Swagger (API docs for frontend)
 
