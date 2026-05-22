@@ -30,6 +30,7 @@ type CreateInput struct {
 }
 
 type VehicleView struct {
+	ID     string `json:"id,omitempty"`
 	Plate  string `json:"plate"`
 	VIN    string `json:"vin"`
 	Make   string `json:"make"`
@@ -48,7 +49,7 @@ func toVehicleView(v Vehicle) VehicleView {
 		status = "Suspended"
 	}
 	return VehicleView{
-		Plate: v.PlateNumber, VIN: v.VIN, Make: v.Make, Model: v.Model,
+		ID: v.ID.Hex(), Plate: v.PlateNumber, VIN: v.VIN, Make: v.Make, Model: v.Model,
 		Year: v.Year, Color: v.Color, Status: status,
 	}
 }

@@ -90,7 +90,7 @@ func toView(v Violation) ViolationView {
 		status = "Appealed"
 	}
 	return ViolationView{
-		ID:       "VIO-" + v.ID.Hex()[len(v.ID.Hex())-6:],
+		ID:       v.ID.Hex(),
 		Driver:   v.Driver,
 		Type:     v.Type,
 		Severity: v.Severity,

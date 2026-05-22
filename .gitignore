@@ -11,3 +11,8 @@ mongo_data/
 docs/pdf_extract.txt
 api.exe
 frontend-extracted/
+scripts/tok-*.json
+scripts/smoke-results.txt
+scripts/smoke-results-summary.json
+git-log.txt
+git-status.txt

@@ -106,6 +106,7 @@ POST /api/v1/auth/register
 | Schedule inspection | POST | `/inspection/schedule` |
 | Payments history | GET | `/payments/history` |
 | Violations | GET | `/violations` |
+| Update violation | PUT | `/violations/{id}/status` (use Mongo `id` from list) |
 | Admin users | GET | `/admin/users` |
 | License applications | GET | `/admin/applications` |
 | Approve license | PUT | `/admin/licenses/{id}/approve` |
