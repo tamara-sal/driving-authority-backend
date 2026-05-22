@@ -10,3 +10,4 @@ dist/
 mongo_data/
 docs/pdf_extract.txt
 api.exe
+frontend-extracted/
